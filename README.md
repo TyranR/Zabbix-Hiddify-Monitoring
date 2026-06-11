@@ -1,9 +1,10 @@
 # Zabbix-Hiddify-Monitoring
 
 ![Zabbix](https://img.shields.io/badge/Zabbix-7.4-red)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Shell](https://img.shields.io/badge/script-Bash-blue)
+![Hiddify](https://img.shields.io/badge/VPN-Hiddify-orange?logo=v2ray&logoColor=white)
+![Go](https://img.shields.io/badge/agent-Agent%202-blue)
 ![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 Reusable Zabbix 7.4 template for deep monitoring of a VPN server powered by Hiddify Manager, its systemd core components, and client connectivity.
 
@@ -27,7 +28,9 @@ The core service tracking, user statistical items, and threshold-driven operatio
 
 ### Hiddify Infrastructure Overview
 
-![Hiddify Infrastructure Overview](docs/dashboard-overview.png)
+![Hiddify Infrastructure Overview](docs/dashboard-overview1.png)
+![Hiddify Infrastructure Overview](docs/dashboard-overview2.png)
+![Hiddify Infrastructure Overview](docs/dashboard-overview3.png)
 
 ## Features
 
