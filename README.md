@@ -70,6 +70,19 @@ zabbix-hiddify-monitoring/
 
 ---
 
+## Requirements
+
+Ensure that your Zabbix Agent 2 target host has system tools configured for proper script execution, and your Zabbix profile is adjusted for clean time rendering.
+
+### Ubuntu / Debian
+
+```bash
+sudo apt update
+sudo apt install jq curl -y
+```
+
+---
+
 ## Items
 
 The template relies on a single master item to process incoming data payloads.
