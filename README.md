@@ -101,10 +101,10 @@ Recommended event and performance tracking severity model:
 ---
 ## 📊 Project Stats
 
-![GitHub stars](https://img.shields.io/github/stars/TyranR/Zabbix-Domain-Monitoring?style=social)
-![GitHub forks](https://img.shields.io/github/forks/TyranR/Zabbix-Domain-Monitoring?style=social)
-![GitHub issues](https://img.shields.io/github/issues/TyranR/Zabbix-Domain-Monitoring)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/TyranR/Zabbix-Domain-Monitoring)
+![GitHub stars](https://img.shields.io/github/stars/TyranR/Zabbix-Hiddify-Monitoring?style=social)
+![GitHub forks](https://img.shields.io/github/forks/TyranR/Zabbix-Hiddify-Monitoring?style=social)
+![GitHub issues](https://img.shields.io/github/issues/TyranR/Zabbix-Hiddify-Monitoring)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/TyranR/Zabbix-Hiddify-Monitoring)
 
 ---
 ## License
