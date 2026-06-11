@@ -2,8 +2,6 @@
 
 ![Zabbix](https://img.shields.io/badge/Zabbix-7.4-red)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Shell](https://img.shields.io/badge/script-Bash-blue)
-![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)
 
 Reusable Zabbix 7.4 template for deep monitoring of a VPN server powered by Hiddify Manager, its systemd core components, and client connectivity.
 
