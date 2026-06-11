@@ -81,6 +81,12 @@ sudo apt update
 sudo apt install jq curl -y
 ```
 
+### RHEL / CentOS / Rocky / AlmaLinux
+
+```bash
+sudo dnf install jq curl -y
+```
+
 ---
 
 ## Items
