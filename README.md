@@ -66,3 +66,33 @@ zabbix-hiddify-monitoring/
 │   └── template_hiddify_manager.yaml
 └── docs/
     └── dashboard-overview.png
+
+---
+
+## Items
+
+The template relies on a single master item to process incoming data payloads.
+
+---
+
+### Dependent Core Items
+
+| Item | Type | Key | Value type | Preprocessing |
+|---|---|---|---|---|
+| VPS RAM Used | Dependent | `hiddify.vps.ram.used` | Numeric unsigned | Bytes normalization |
+| RAM Usage (Singbox Core) | Dependent | `hiddify.ram.singbox` | Numeric float | JSONPath extraction & `.toFixed(2)` format |
+| RAM Usage (Panel) | Dependent | `hiddify.ram.panel` | Numeric float | JSONPath extraction & `.toFixed(2)` format |
+| Online Users | Dependent | `hiddify.users.online` | Numeric unsigned | Axis fixed constraints definition |
+| Port 443 Availability Status | Dependent | `hiddify.port443.status` | Numeric unsigned | System mapping binary adjustment |
+
+---
+
+## Triggers
+
+Recommended event and performance tracking severity model:
+
+| Range / Condition | Severity | Expression |
+|---|---|---|
+| Singbox core memory consumption > 1GB | Average | `last(/Template Hiddify/hiddify.ram.singbox)>1073741824` |
+| Primary Client Connection Port 443 Down | High | `last(/Template Hiddify/hiddify.port443.status)=0` |
+| Core Hiddify Systemd Panel Component Inactive | Disaster | `last(/Template Hiddify/hiddify.service.panel.status)=0` |
