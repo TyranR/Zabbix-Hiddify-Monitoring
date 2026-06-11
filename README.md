@@ -25,7 +25,9 @@ The core service tracking, user statistical items, and threshold-driven operatio
 
 ### Hiddify Infrastructure Overview
 
-![Hiddify Infrastructure Overview](docs/dashboard-overview.png)
+![Hiddify Infrastructure Overview](docs/dashboard-overview1.png)
+![Hiddify Infrastructure Overview](docs/dashboard-overview2.png)
+![Hiddify Infrastructure Overview](docs/dashboard-overview3.png)
 
 ## Features
 
