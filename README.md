@@ -63,12 +63,12 @@ The core service tracking, user statistical items, and threshold-driven operatio
 ```text
 zabbix-hiddify-monitoring/
 ├── README.md
-├── configs/
-│   └── hiddify_agent2.conf
 ├── templates/
 │   └── template_hiddify_manager.yaml
 └── docs/
-    └── dashboard-overview.png
+    └── dashboard-overview1.png
+    └── dashboard-overview2.png
+    └── dashboard-overview3.png
 ```
 
 ---
