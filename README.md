@@ -97,3 +97,17 @@ Recommended event and performance tracking severity model:
 | Singbox core memory consumption > 1GB | Average | `last(/Template Hiddify/hiddify.ram.singbox)>1073741824` |
 | Primary Client Connection Port 443 Down | High | `last(/Template Hiddify/hiddify.port443.status)=0` |
 | Core Hiddify Systemd Panel Component Inactive | Disaster | `last(/Template Hiddify/hiddify.service.panel.status)=0` |
+
+---
+## 📊 Project Stats
+
+![GitHub stars](https://img.shields.io/github/stars/TyranR/Zabbix-Domain-Monitoring?style=social)
+![GitHub forks](https://img.shields.io/github/forks/TyranR/Zabbix-Domain-Monitoring?style=social)
+![GitHub issues](https://img.shields.io/github/issues/TyranR/Zabbix-Domain-Monitoring)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/TyranR/Zabbix-Domain-Monitoring)
+
+---
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+TL;DR: Free to use for personal and commercial projects. Attribution appreciated but not required.
