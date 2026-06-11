@@ -99,6 +99,29 @@ Recommended event and performance tracking severity model:
 | Core Hiddify Systemd Panel Component Inactive | Disaster | `last(/Template Hiddify/hiddify.service.panel.status)=0` |
 
 ---
+
+## Troubleshooting
+
+### Graph displays decimal points for metric users (e.g., 4.5 users)
+
+This occurs automatically when value fluctuations across a grid timeline remain minimal.
+
+To override this layout:
+1. Open your Dashboard view and click **Edit dashboard**.
+2. Access the target widget's setup properties.
+3. Switch the **Y axis MIN value** parameter from *Calculated* to **Fixed** and type `0`.
+4. Save adjustments. The graph canvas will re-align to display integer steps.
+
+### Graph legends show varying decimal digits length
+
+Raw JSON payloads often pass floating values with mismatched precision lengths.
+Ensure that each problem item has a JavaScript formatting step appended right inside its **Preprocessing** tab:
+
+```javascript
+return Number(value).toFixed(2);
+```
+
+---
 ## 📊 Project Stats
 
 ![GitHub stars](https://img.shields.io/github/stars/TyranR/Zabbix-Hiddify-Monitoring?style=social)
