@@ -66,6 +66,7 @@ zabbix-hiddify-monitoring/
 │   └── template_hiddify_manager.yaml
 └── docs/
     └── dashboard-overview.png
+```
 
 ---
 
