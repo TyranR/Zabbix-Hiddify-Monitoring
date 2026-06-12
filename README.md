@@ -92,6 +92,42 @@ sudo dnf install jq curl -y
 
 ---
 
+## Zabbix setup
+
+### 1. Import Template
+
+Import the main dashboard-ready template into your Zabbix infrastructure:
+1. Open your Zabbix Web Interface and navigate to **Data collection** ➡️ **Templates**.
+2. Click the **Import** button located in the top right corner of the screen.
+3. Choose and upload the template configuration file: `templates/template_hiddify_manager.yaml`.
+
+### 2. Host Configuration
+
+Create a new Zabbix Host instance representing your VPN server node, or link the template to an existing one:
+
+```text
+Host name: My Hiddify Server
+Groups: VPN Nodes / Linux servers
+Templates: Template Hiddify Manager by Zabbix Agent 2
+Interfaces: Add your Zabbix Agent interface (enter the IP address or DNS of your VPN node)
+```
+
+---
+
+## Macros & Telemetry Mapping
+
+The template uses your defined host-level user macros to dynamically construct endpoint targets and pass secure parameters directly to the internally executed HTTP Agent master item.
+
+### User Macros Configuration
+
+| Macro | Type | Default Value / Example | Description |
+|---|---|---|---|
+| `{$HIDDIFY.DOMAIN}` | Text | `vpn.example.com` | Your public panel connection domain name. |
+| `{$HIDDIFY.PROXY.PATH}` | Secret text | `kX7sD9D6d7df76f2mZn` | Secure random path identifier fragment. |
+| `{$HIDDIFY.USER.UUID}` | Secret text | `23213dasd-b2aa-9999-aaaa-c012312b14fd4` | Administrative access token query string. |
+
+---
+
 ## Items
 
 The template relies on a single master item to process incoming data payloads.
