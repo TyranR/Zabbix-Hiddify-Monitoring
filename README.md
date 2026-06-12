@@ -38,7 +38,7 @@ The core service tracking, user statistical items, and threshold-driven operatio
 
 - **Systemd service states:** Runtime binary status (`active`/`inactive`) tracking for Hiddify Panel, Singbox Core, Xray Core, Nginx, HAProxy, and Redis.
 - **Edge Availability:** Live network status of the primary client connection port (`443`).
-- **Web UI Latency:** Real-time monitoring of response times and webpage download speed for the Hiddify Admin interface.
+- **Web UI Availability & Latency:** Real-time multi-step web scenario tracking that measures HTTP response codes, download speed, and exact handshake latency for the Hiddify Admin interface.
 
 ### Statistical & Hardware Data
 
@@ -145,6 +145,17 @@ The following table highlights the key dependent items that map your infrastruct
 | Hiddify: Today Active Users | Dependent | `hiddify.api.users.today` | Numeric unsigned | JSONPath extraction: `$.stats.system.users_today` |
 | Hiddify: Singbox Memory Usage | Dependent | `proc.mem[hiddify-core,,,,rss]` | Numeric float | Native process allocation mapped to bytes calculation |
 
+### Web Monitoring Items
+
+The template automatically deploys a native Zabbix Web Scenario that performs an external HTTP/HTTPS handshake with your panel using the `{$HIDDIFY.DOMAIN}` and `{$HIDDIFY.PROXY.PATH}` user macros. This populates the following automated metrics:
+
+| Item / Metric | Type | Key | Value type | Description / Processing |
+|---|---|---|---|---|
+| Hiddify: Web UI Access Status | Web item | `web.test.rspcode[Hiddify Web UI Check,Login Page]` | Numeric unsigned | Captures the HTTP response code (e.g., `200 OK`, `403 Forbidden`). |
+| Hiddify: Web UI Download Speed | Web item | `web.test.in[Hiddify Web UI Check,Login Page,bps]` | Numeric float | Tracks the raw download speed of the admin interface page in bps. |
+| Hiddify: Web UI Fail Step | Web item | `web.test.fail[Hiddify Web UI Check]` | Numeric unsigned | Displays `0` if the web scenario passes successfully, or the step number if it fails. |
+| Hiddify: Web UI Response Time | Web item | `web.test.time[Hiddify Web UI Check,Login Page,resp]` | Numeric float | Measures the exact duration in seconds for the login page to fully respond. |
+
 ---
 
 ## Triggers
@@ -161,6 +172,8 @@ The following table highlights the key triggers built directly into the template
 | Primary Client Connection Port 443 Down | High | `last(/Hiddify Manager by Zabbix Agent 2/net.tcp.service[tcp,,443])=0` |
 | Hiddify Administrative Panel Response Latency > 5s | Warning | `last(/Hiddify Manager by Zabbix Agent 2/hiddify.api.response_time)>5` |
 | Singbox Core Service Memory Consumption > 1GB | Average | `last(/Hiddify Manager by Zabbix Agent 2/proc.mem[hiddify-core,,,,rss])>1073741824` |
+| Hiddify Web UI Interface returns HTTP code error (not 200) | High | `last(/Hiddify Manager by Zabbix Agent 2/web.test.rspcode[Hiddify Web UI Check,Login Page])<>200` |
+| Hiddify Web UI Check scenario has failed | High | `last(/Hiddify Manager by Zabbix Agent 2/web.test.fail[Hiddify Web UI Check])>0` |
 
 *Note: All triggers are configured with default thresholds suitable for most production servers, but they can be easily overridden or customized via Zabbix template inheritance.*
 
