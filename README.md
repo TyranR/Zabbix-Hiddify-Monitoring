@@ -123,8 +123,8 @@ The template uses your defined host-level user macros to dynamically construct e
 | Macro | Type | Default Value / Example | Description |
 |---|---|---|---|
 | `{$HIDDIFY.DOMAIN}` | Text | `vpn.example.com` | Your public panel connection domain name. |
-| `{$HIDDIFY.PROXY.PATH}` | Secret text | `kX7sD9D6d7df76f2mZn` | Secure random path identifier fragment. |
-| `{$HIDDIFY.USER.UUID}` | Secret text | `23213dasd-b2aa-9999-aaaa-c012312b14fd4` | Administrative access token query string. |
+| `{$HIDDIFY.PROXY.PATH}` | Secret text | `q1w2e3r4t5y6u7i8o9p0` | Secure random path identifier fragment. |
+| `{$HIDDIFY.USER.UUID}` | Secret text | `abcdefgh-b2b2-c3c3-d4d4-e5g6h6j7k8l9n7` | Administrative access token query string. |
 
 ---
 
