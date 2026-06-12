@@ -130,31 +130,90 @@ The template uses your defined host-level user macros to dynamically construct e
 
 ## Items
 
-The template relies on a single master item to process incoming data payloads.
+The template deployment processes a collection of **41 operational items** in total. It relies on a single Master Item (`hiddify.api.status`) that securely establishes an encrypted connection and retrieves the structural JSON telemetry payload exactly once per collection interval. All other sub-metrics are instantly processed as resource-saving Dependent Items via fast JSONPath filtering and lightweight JavaScript.
 
----
+### Core Architecture Items (Examples)
 
-### Dependent Core Items
+The following table highlights the key dependent items that map your infrastructure's core endpoints:
 
-| Item | Type | Key | Value type | Preprocessing |
+| Item | Type | Key | Value type | Inside Preprocessing / Notes |
 |---|---|---|---|---|
-| VPS RAM Used | Dependent | `hiddify.vps.ram.used` | Numeric unsigned | Bytes normalization |
-| RAM Usage (Singbox Core) | Dependent | `hiddify.ram.singbox` | Numeric float | JSONPath extraction & `.toFixed(2)` format |
-| RAM Usage (Panel) | Dependent | `hiddify.ram.panel` | Numeric float | JSONPath extraction & `.toFixed(2)` format |
-| Online Users | Dependent | `hiddify.users.online` | Numeric unsigned | Axis fixed constraints definition |
-| Port 443 Availability Status | Dependent | `hiddify.port443.status` | Numeric unsigned | System mapping binary adjustment |
+| Hiddify: Core Panel Status | Dependent | `hiddify.service.panel.status` | Numeric unsigned | JavaScript status parser mapping (`active` ➡️ `1`) |
+| Hiddify: Singbox Core Status | Dependent | `hiddify.service.singbox.status` | Numeric unsigned | JavaScript status parser mapping (`active` ➡️ `1`) |
+| Hiddify: Port 443 Availability | Simple check | `net.tcp.service[tcp,,443]` | Numeric unsigned | Network socket validation binary state (`1` ➡️ up, `0` ➡️ down) |
+| Hiddify: Live Online Users | Dependent | `hiddify.api.online_users` | Numeric unsigned | JSONPath extraction: `$.stats.system.online_users` |
+| Hiddify: Today Active Users | Dependent | `hiddify.api.users.today` | Numeric unsigned | JSONPath extraction: `$.stats.system.users_today` |
+| Hiddify: Singbox Memory Usage | Dependent | `proc.mem[hiddify-core,,,,rss]` | Numeric float | Native process allocation mapped to bytes calculation |
 
 ---
 
 ## Triggers
 
-Recommended event and performance tracking severity model:
+The template includes **10 pre-configured triggers** implementing a production-ready event and performance tracking severity model. These triggers instantly catch routing drops, port blockages, or core service degradation before they impact your clients.
 
-| Range / Condition | Severity | Expression |
+### Core Operational Triggers (Examples)
+
+The following table highlights the key triggers built directly into the template:
+
+| Event / Operational Condition | Severity | Expression |
 |---|---|---|
-| Singbox core memory consumption > 1GB | Average | `last(/Template Hiddify/hiddify.ram.singbox)>1073741824` |
-| Primary Client Connection Port 443 Down | High | `last(/Template Hiddify/hiddify.port443.status)=0` |
-| Core Hiddify Systemd Panel Component Inactive | Disaster | `last(/Template Hiddify/hiddify.service.panel.status)=0` |
+| Core Hiddify Systemd Panel Component Inactive | Disaster | `last(/Hiddify Manager by Zabbix Agent 2/hiddify.service.panel.status)=0` |
+| Primary Client Connection Port 443 Down | High | `last(/Hiddify Manager by Zabbix Agent 2/net.tcp.service[tcp,,443])=0` |
+| Hiddify Administrative Panel Response Latency > 5s | Warning | `last(/Hiddify Manager by Zabbix Agent 2/hiddify.api.response_time)>5` |
+| Singbox Core Service Memory Consumption > 1GB | Average | `last(/Hiddify Manager by Zabbix Agent 2/proc.mem[hiddify-core,,,,rss])>1073741824` |
+
+*Note: All triggers are configured with default thresholds suitable for most production servers, but they can be easily overridden or customized via Zabbix template inheritance.*
+
+---
+
+---
+
+## Dashboard layout
+
+The project ships with **1 pre-packaged out-of-the-box dashboard** called `Hiddify Infrastructure Overview` designed to provide instant infrastructure visibility. It features interactive status indicators and **3 comprehensive monitoring graphs**.
+
+### Row 1: KPI Operational Status Cards
+
+Modern threshold-driven `Item value` widgets providing live state monitoring for background services and connectivity endpoints:
+* **Monitored states:** Hiddify Core Panel, Singbox Core Service, HAProxy Daemon, Nginx Web Server, and Client Port Availability.
+
+*Recommended widget threshold layout for service indicators:*
+* **Value `1`** ➡️ Green background status (`active`)
+* **Value `0`** ➡️ Red background status (`inactive` / `down`)
+
+---
+
+### Row 2: Performance and Latency Trends
+
+#### Graph 1: Hiddify: Users Activity
+Visualizes the real-time relation between concurrent live connections and cumulative user handshakes throughout the day.
+* **Metrics included:**
+  * `Hiddify: Live Online Users` (`hiddify.api.online_users`) ➡️ **Blue line**
+  * `Hiddify: Today Active Users` (`hiddify.api.users.today`) ➡️ **Light Green line**
+* **Graph settings:**
+  * **Y-axis MIN value:** `Fixed ➡️ 0` (prevents timeline grid decimal artifacts).
+
+#### Graph 2: Hiddify: Network Speed & Bandwidth
+Tracks exact incoming and outgoing traffic processing speeds to prevent channel starvation or identify heavy load spikes.
+* **Metrics included:**
+  * `Hiddify: Network Download Speed` ➡️ **Bright Green line / Filled region**
+  * `Hiddify: Network Upload Speed` ➡️ **Cyan / Blue line / Filled region**
+* **Graph settings:**
+  * **Draw style:** `Filled region` with 20% transparent color opacity.
+  * **Y-axis MIN value:** `Calculated`.
+
+---
+
+### Row 3: Hardware Inventory Stack
+
+#### Graph 3: Hiddify: Singbox Memory Usage
+Monitors the exact memory allocation footprint of the underlying Singbox proxy routing engine to identify potential memory leaks or core process exhaustion.
+* **Metrics included:**
+  * `Hiddify: Singbox Memory Usage` (`proc.mem[hiddify-core,,,,rss]`) ➡️ **Dark Green line**
+  * `Hiddify: Port 443 Availability` (`net.tcp.service[tcp,,443]`) ➡️ **Helper background grid mapping**
+* **Graph settings:**
+  * **Y-axis MIN value:** `Fixed ➡️ 0`.
+  * **Units:** Configured to `B` (Bytes) with auto-scaling to MB/GB in legends.
 
 ---
 
