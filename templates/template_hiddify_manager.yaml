@@ -670,7 +670,7 @@ zabbix_export:
                       name: itemid.0
                       value:
                         host: 'Hiddify Manager by Zabbix Agent 2'
-                        key: hiddify.service.haproxy.numeric
+                        key: hiddify.service.nginx.numeric
                     - type: INTEGER
                       name: show.0
                       value: '2'
