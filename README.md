@@ -125,8 +125,8 @@ The following table highlights the key dependent items that map your infrastruct
 
 | Item | Type | Key | Value type | Inside Preprocessing / Notes |
 |---|---|---|---|---|
-| Hiddify: Core Panel Status | Dependent | `hiddify.service.panel.status` | Numeric unsigned | JavaScript status parser mapping (`active` ➡️ `1`) |
-| Hiddify: Singbox Core Status | Dependent | `hiddify.service.singbox.status` | Numeric unsigned | JavaScript status parser mapping (`active` ➡️ `1`) |
+| Hiddify: Core Panel Status | Dependent | `hiddify.service.panel.numeric` | Numeric unsigned | JavaScript status parser mapping (`active` ➡️ `1`) |
+| Hiddify: Singbox Core Status | Dependent | `hiddify.service.singbox.numeric` | Numeric unsigned | JavaScript status parser mapping (`active` ➡️ `1`) |
 | Hiddify: Port 443 Availability | Simple check | `net.tcp.service[tcp,,443]` | Numeric unsigned | Network socket validation binary state (`1` ➡️ up, `0` ➡️ down) |
 | Hiddify: Online Users | Dependent | `hiddify.api.online_users` | Numeric unsigned | JSONPath extraction: `$.usage_history.m5.online` |
 | Hiddify: Active Users Today | Dependent | `hiddify.api.users.today` | Numeric unsigned | JSONPath extraction: `$.usage_history.today.online` |
@@ -138,30 +138,34 @@ The template automatically deploys a native Zabbix Web Scenario that performs an
 
 | Item / Metric | Type | Key | Value type | Description / Processing |
 |---|---|---|---|---|
-| Hiddify: Web UI Access Status | Web item | `web.test.rspcode[Hiddify Web UI Check,Login Page]` | Numeric unsigned | Captures the HTTP response code (e.g., `200 OK`, `403 Forbidden`). |
-| Hiddify: Web UI Download Speed | Web item | `web.test.in[Hiddify Web UI Check,Login Page,bps]` | Numeric float | Tracks the raw download speed of the admin interface page in bps. |
-| Hiddify: Web UI Fail Step | Web item | `web.test.fail[Hiddify Web UI Check]` | Numeric unsigned | Displays `0` if the web scenario passes successfully, or the step number if it fails. |
-| Hiddify: Web UI Response Time | Web item | `web.test.time[Hiddify Web UI Check,Login Page,resp]` | Numeric float | Measures the exact duration in seconds for the login page to fully respond. |
+| Hiddify: Web UI Access Status | Web item | `web.test.rspcode[Hiddify Panel Web UI Access,Check Admin Login Page]` | Numeric unsigned | Captures the HTTP response code, expected `200`. |
+| Hiddify: Web UI Download Speed | Web item | `web.test.in[Hiddify Panel Web UI Access,Check Admin Login Page,bps]` | Numeric float | Tracks the raw download speed of the admin interface page in bps. |
+| Hiddify: Web UI Fail Step | Web item | `web.test.fail[Hiddify Panel Web UI Access]` | Numeric unsigned | Displays `0` if the web scenario passes successfully, or the failed step number. |
+| Hiddify: Web UI Response Time | Web item | `web.test.time[Hiddify Panel Web UI Access,Check Admin Login Page,resp]` | Numeric float | Measures the response time in seconds for the admin login page. |
 
 ---
 
 ## Triggers
 
-The template includes **10 pre-configured triggers** implementing a production-ready event and performance tracking severity model. These triggers instantly catch routing drops, port blockages, or core service degradation before they impact your clients.
+The template includes **10 pre-configured triggers** implementing a production-ready event and performance tracking severity model. These triggers instantly catch service outages, port availability issues, abnormal memory usage, web interface failures, and excessive log directory growth before they impact your clients.
 
-### Core Operational Triggers (Examples)
+### Core Operational Triggers
 
-The following table highlights the key triggers built directly into the template:
+| Event / Operational Condition                           | Severity | Expression                                                                                                  |
+| ------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
+| Hiddify: Management Panel UI is Down                    | High     | `last(/Hiddify Manager by Zabbix Agent 2/systemd.unit.info[hiddify-panel.service,ActiveState])<>"active"`   |
+| Hiddify: Core Service (Singbox) is Down                 | High     | `last(/Hiddify Manager by Zabbix Agent 2/systemd.unit.info[hiddify-singbox.service,ActiveState])<>"active"` |
+| Hiddify: Core Service (Xray) is Down                    | High     | `last(/Hiddify Manager by Zabbix Agent 2/systemd.unit.info[hiddify-xray.service,ActiveState])<>"active"`    |
+| Hiddify: Load Balancer (HAProxy) is Down                | High     | `last(/Hiddify Manager by Zabbix Agent 2/systemd.unit.info[hiddify-haproxy.service,ActiveState])<>"active"` |
+| Hiddify: Web Server (Nginx) is Down                     | High     | `last(/Hiddify Manager by Zabbix Agent 2/systemd.unit.info[hiddify-nginx.service,ActiveState])<>"active"`   |
+| Hiddify: Database Service (Redis) is Down               | High     | `last(/Hiddify Manager by Zabbix Agent 2/systemd.unit.info[hiddify-redis.service,ActiveState])<>"active"`   |
+| Hiddify: Port 443 (Reality/TLS) is Not Responding       | High     | `last(/Hiddify Manager by Zabbix Agent 2/net.tcp.service[tcp,,443])=0`                                      |
+| Hiddify: Web Interface is unavailable (failed Access)   | High     | `last(/Hiddify Manager by Zabbix Agent 2/web.test.fail[Hiddify Panel Web UI Access])<>0`                    |
+| Hiddify: Singbox process memory usage is unusually high | Average  | `last(/Hiddify Manager by Zabbix Agent 2/proc.mem[hiddify-core,,,,rss])>1G`                                 |
+| Hiddify: Log files directory size exceeds limit         | Warning  | `last(/Hiddify Manager by Zabbix Agent 2/vfs.dir.size[/opt/hiddify-manager/log/system])>2G`                 |
 
-| Event / Operational Condition | Severity | Expression |
-|---|---|---|
-| Hiddify: Management Panel UI is Down | High | `last(/Hiddify Manager by Zabbix Agent 2/systemd.unit.info[hiddify-panel.service,ActiveState])<>"active"` |
-| Hiddify: Port 443 (Reality/TLS) is Not Responding | High | `last(/Hiddify Manager by Zabbix Agent 2/net.tcp.service[tcp,,443])=0` |
-| Hiddify: Singbox process memory usage is unusually high | Average | `last(/Hiddify Manager by Zabbix Agent 2/proc.mem[hiddify-core,,,,rss])>1G` |
-| Hiddify: Web Interface is unavailable (failed Access) | High | `last(/Hiddify Manager by Zabbix Agent 2/web.test.fail[Hiddify Panel Web UI Access])<>0` |
-| Hiddify: Log files directory size exceeds limit | Warning | `last(/Hiddify Manager by Zabbix Agent 2/vfs.dir.size[/opt/hiddify-manager/log/system])>2G` |
+*Note: All triggers are configured with default thresholds suitable for most production servers, but they can be overridden or customized via Zabbix template inheritance.*
 
-*Note: All triggers are configured with default thresholds suitable for most production servers, but they can be easily overridden or customized via Zabbix template inheritance.*
 
 ---
 
