@@ -166,8 +166,6 @@ The following table highlights the key triggers built directly into the template
 
 ---
 
----
-
 ## Dashboard layout
 
 The project ships with **1 pre-packaged out-of-the-box dashboard** called `Hiddify Infrastructure Overview` designed to provide instant infrastructure visibility. It features interactive status indicators and **3 comprehensive monitoring graphs**.
