@@ -1,7 +1,7 @@
 # Zabbix-Hiddify-Monitoring
 
 ![Zabbix](https://img.shields.io/badge/Zabbix-7.4-red)
-![Hiddify](https://img.shields.io/badge/VPN-Hiddify-orange?logo=v2ray&logoColor=white)
+![Hiddify](https://img.shields.io/badge/VPN-Hiddify-orange?logo=v2ray&logoColor=whitef
 ![Go](https://img.shields.io/badge/agent-Agent%202-blue)
 ![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -11,16 +11,16 @@ Reusable Zabbix 7.4 template for deep monitoring of a VPN server powered by Hidd
 ## What this solves
 
 Managing modern multi-protocol VPN instances (like Hiddify) requires keeping tabs on numerous background components (Singbox, Xray, HAProxy, Nginx, Redis) simultaneously. 
-Unexpected core crashes or port blocks directly disrupt client handshakes. This project provides an optimized, single-API-call Zabbix template that checks backend health, storage distribution, user metrics, and connectivity markers without introducing resource overhead.
+Unexpected core crashes or port blocks directly disrupt client handshakes. The template uses one HTTP Agent master item for Hiddify API telemetry and combines it with native Zabbix Agent 2 checks for services, ports, processes, and filesystem metrics.
 
 ## Project status
 
 This project is currently under active development.
-The core service tracking, user statistical items, and threshold-driven operational dashboards are fully functional. Advanced aggregate portfolio tracking for multiple VPN nodes is planned for future releases.
+The core service tracking, user statistical items, and threshold-driven operational dashboards are fully functional. Advanced aggregate monitoring for multiple VPN nodes is planned for future releases.
 
 ## Current limitations
 
-- The user statistics depend on the responsive status of the internal Hiddify Manager API.
+- User statistics depend on the availability and responsiveness of the Hiddify Manager API.
 - Individual process tracking for Nginx or HAProxy might show negligible baseline memory allocations on empty nodes.
 - High-frequency graph grids may experience minor staircase effects if data points shift slightly during long collection intervals.
 
@@ -36,14 +36,14 @@ The core service tracking, user statistical items, and threshold-driven operatio
 
 ### Ecosystem Core Monitoring
 
-- **Systemd service states:** Runtime binary status (`active`/`inactive`) tracking for Hiddify Panel, Singbox Core, Xray Core, Nginx, HAProxy, and Redis.
+- **Systemd service states:** Runtime service status (`active`/`inactive`) tracking for Hiddify Panel, Singbox Core, Xray Core, Nginx, HAProxy, and Redis.
 - **Edge Availability:** Live network status of the primary client connection port (`443`).
-- **Web UI Availability & Latency:** Real-time multi-step web scenario tracking that measures HTTP response codes, download speed, and exact handshake latency for the Hiddify Admin interface.
+- **Web UI Availability & Latency:** Real-time multi-step web scenario tracking that measures HTTP response codes, download speed and response time for the Hiddify Admin interface.
 
 ### Statistical & Hardware Data
 
 - **User Activity:** Live count of concurrent `Online Users`, accompanied by historical breakdown counters for Users Today, Yesterday, and Monthly.
-- **Stacked Memory Analytics:** Granular memory usage monitoring per core process (`Singbox`, `Xray`, `Panel`, `HAProxy`) tracked against overall system memory allocation (`VPS RAM Used`).
+- **Process Memory Analytics:** Tracks RAM usage for Singbox, Xray, Panel, and HAProxy from Hiddify API telemetry, plus native Zabbix Agent process memory tracking for `hiddify-core`.
 - **Disk Allocation:** Total storage tracking alongside targeted physical path monitoring for the Hiddify Manager directory.
 - **Bandwidth Metrics:** Precise network metrics capturing real-time incoming and outgoing bandwidth speeds (Download/Upload).
 
@@ -75,20 +75,7 @@ zabbix-hiddify-monitoring/
 
 ## Requirements
 
-Ensure that your Zabbix Agent 2 target host has system tools configured for proper script execution, and your Zabbix profile is adjusted for clean time rendering.
-
-### Ubuntu / Debian
-
-```bash
-sudo apt update
-sudo apt install jq curl -y
-```
-
-### RHEL / CentOS / Rocky / AlmaLinux
-
-```bash
-sudo dnf install jq curl -y
-```
+No custom external scripts are required by the template.  
 
 ---
 
@@ -141,8 +128,8 @@ The following table highlights the key dependent items that map your infrastruct
 | Hiddify: Core Panel Status | Dependent | `hiddify.service.panel.status` | Numeric unsigned | JavaScript status parser mapping (`active` ➡️ `1`) |
 | Hiddify: Singbox Core Status | Dependent | `hiddify.service.singbox.status` | Numeric unsigned | JavaScript status parser mapping (`active` ➡️ `1`) |
 | Hiddify: Port 443 Availability | Simple check | `net.tcp.service[tcp,,443]` | Numeric unsigned | Network socket validation binary state (`1` ➡️ up, `0` ➡️ down) |
-| Hiddify: Live Online Users | Dependent | `hiddify.api.online_users` | Numeric unsigned | JSONPath extraction: `$.stats.system.online_users` |
-| Hiddify: Today Active Users | Dependent | `hiddify.api.users.today` | Numeric unsigned | JSONPath extraction: `$.stats.system.users_today` |
+| Hiddify: Online Users | Dependent | `hiddify.api.online_users` | Numeric unsigned | JSONPath extraction: `$.usage_history.m5.online` |
+| Hiddify: Active Users Today | Dependent | `hiddify.api.users.today` | Numeric unsigned | JSONPath extraction: `$.usage_history.today.online` |
 | Hiddify: Singbox Memory Usage | Dependent | `proc.mem[hiddify-core,,,,rss]` | Numeric float | Native process allocation mapped to bytes calculation |
 
 ### Web Monitoring Items
@@ -168,12 +155,11 @@ The following table highlights the key triggers built directly into the template
 
 | Event / Operational Condition | Severity | Expression |
 |---|---|---|
-| Core Hiddify Systemd Panel Component Inactive | Disaster | `last(/Hiddify Manager by Zabbix Agent 2/hiddify.service.panel.status)=0` |
-| Primary Client Connection Port 443 Down | High | `last(/Hiddify Manager by Zabbix Agent 2/net.tcp.service[tcp,,443])=0` |
-| Hiddify Administrative Panel Response Latency > 5s | Warning | `last(/Hiddify Manager by Zabbix Agent 2/hiddify.api.response_time)>5` |
-| Singbox Core Service Memory Consumption > 1GB | Average | `last(/Hiddify Manager by Zabbix Agent 2/proc.mem[hiddify-core,,,,rss])>1073741824` |
-| Hiddify Web UI Interface returns HTTP code error (not 200) | High | `last(/Hiddify Manager by Zabbix Agent 2/web.test.rspcode[Hiddify Web UI Check,Login Page])<>200` |
-| Hiddify Web UI Check scenario has failed | High | `last(/Hiddify Manager by Zabbix Agent 2/web.test.fail[Hiddify Web UI Check])>0` |
+| Hiddify: Management Panel UI is Down | High | `last(/Hiddify Manager by Zabbix Agent 2/systemd.unit.info[hiddify-panel.service,ActiveState])<>"active"` |
+| Hiddify: Port 443 (Reality/TLS) is Not Responding | High | `last(/Hiddify Manager by Zabbix Agent 2/net.tcp.service[tcp,,443])=0` |
+| Hiddify: Singbox process memory usage is unusually high | Average | `last(/Hiddify Manager by Zabbix Agent 2/proc.mem[hiddify-core,,,,rss])>1G` |
+| Hiddify: Web Interface is unavailable (failed Access) | High | `last(/Hiddify Manager by Zabbix Agent 2/web.test.fail[Hiddify Panel Web UI Access])<>0` |
+| Hiddify: Log files directory size exceeds limit | Warning | `last(/Hiddify Manager by Zabbix Agent 2/vfs.dir.size[/opt/hiddify-manager/log/system])>2G` |
 
 *Note: All triggers are configured with default thresholds suitable for most production servers, but they can be easily overridden or customized via Zabbix template inheritance.*
 
@@ -181,7 +167,7 @@ The following table highlights the key triggers built directly into the template
 
 ## Dashboard layout
 
-The project ships with **1 pre-packaged out-of-the-box dashboard** called `Hiddify Infrastructure Overview` designed to provide instant infrastructure visibility. It features interactive status indicators and **3 comprehensive monitoring graphs**.
+The project ships with **1 pre-packaged out-of-the-box dashboard** called `Hiddify Infrastructure` designed to provide instant infrastructure visibility. It features interactive status indicators and **7 monitoring graphs**.
 
 ### Row 1: KPI Operational Status Cards
 
