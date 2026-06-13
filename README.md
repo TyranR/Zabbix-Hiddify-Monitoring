@@ -1,4 +1,4 @@
-# Zabbix-Hiddify-Monitoring
+# Zabbix Hiddify Monitoring
 
 ![Zabbix](https://img.shields.io/badge/Zabbix-7.4-red)
 ![Hiddify](https://img.shields.io/badge/VPN-Hiddify-orange)
